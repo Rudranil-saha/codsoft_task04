@@ -1,0 +1,97 @@
+class Contact {
+    constructor(name, phoneNumber, email) {
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+    }
+}
+
+class AddressBook {
+    constructor() {
+        this.contacts = JSON.parse(localStorage.getItem('contacts')) || [];
+    }
+
+    addContact(contact) {
+        this.contacts.push(contact);
+        this.saveContacts();
+    }
+
+    removeContact(name) {
+        this.contacts = this.contacts.filter(contact => contact.name !== name);
+        this.saveContacts();
+    }
+
+    searchContact(name) {
+        return this.contacts.filter(contact => contact.name.toLowerCase().includes(name.toLowerCase()));
+    }
+
+    displayContacts() {
+        return this.contacts;
+    }
+
+    saveContacts() {
+        localStorage.setItem('contacts', JSON.stringify(this.contacts));
+    }
+}
+
+const addressBook = new AddressBook();
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    displayContacts();
+});
+
+function addContact() {
+    const name = prompt("Enter name:");
+    const phoneNumber = prompt("Enter phone number:");
+    const email = prompt("Enter email:");
+
+    if (validateInput(name, phoneNumber, email)) {
+        const newContact = new Contact(name, phoneNumber, email);
+        addressBook.addContact(newContact);
+        displayContacts();
+    } else {
+        alert("Please fill in all fields with valid information.");
+    }
+}
+
+function removeContact() {
+    const name = prompt("Enter the name of the contact you want to remove:");
+    if (name) {
+        addressBook.removeContact(name);
+        displayContacts();
+    } else {
+        alert("Please enter a valid name.");
+    }
+}
+
+function searchContact() {
+    const name = prompt("Enter name to search:");
+    if (name) {
+        const searchResults = addressBook.searchContact(name);
+        if (searchResults.length > 0) {
+            alert(`Found ${searchResults.length} contact(s):\n${searchResults.map(contact => contact.name).join('\n')}`);
+        } else {
+            alert("No contacts found.");
+        }
+    } else {
+        alert("Please enter a valid name.");
+    }
+}
+
+function displayContacts() {
+    const contacts = addressBook.displayContacts();
+    if (contacts.length > 0) {
+        console.log("Contacts:");
+        contacts.forEach(contact => {
+            console.log(`Name: ${contact.name}, Phone: ${contact.phoneNumber}, Email: ${contact.email}`);
+        });
+    } else {
+        console.log("No contacts to display.");
+    }
+}
+
+function validateInput(name, phoneNumber, email) {
+    const phonePattern = /^[0-9]{10}$/;
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return name && phonePattern.test(phoneNumber) && emailPattern.test(email);
+}
